@@ -1,0 +1,21 @@
+{
+
+    "name": "Chi Non Ha Risposto Al Sondaggio WhatsApp",
+    "version": "1.6",
+    "description": "Elenca le persone che non hanno risposto al sondaggio WhatsApp",
+    "icons": {
+    },
+    "manifest_version": 3,
+    "content_scripts": [{
+        "js": [
+            "script.js"
+        ],
+        "matches": [
+            "https://web.whatsapp.com/"
+        ]
+    }],
+    "web_accessible_resources": [{ 
+        "resources": ["*.js"],
+        "matches": ["<all_urls>"]
+    }]
+}
