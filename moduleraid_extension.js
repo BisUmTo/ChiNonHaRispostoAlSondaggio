@@ -24,12 +24,19 @@ window.addEventListener('message', (e) => {
     console.log("Voti:", votes);
     const poll = Store.Msg.getModelsArray().filter(m=>m.type == "poll_creation").find(m=>e.data.export.includes(m.__x_id.id));
     console.log("Sondaggio:", poll);
+
+    if (!poll.remote || !poll.remote.user) {
+      alert("Attualmente non è possibile esportare i voti dei sondaggi privati");
+      return;
+    }
+
     const group = Store.GroupMetadata.getModelsArray().filter(x=>x.__x_id.user==poll.remote.user)[0];
     console.log("Gruppo:", group);
     const partecipants = group.participants._models;
     console.log("Partecipanti:", partecipants);
     const unvotes = partecipants.filter(x=>!votes.map(x=>x.__x_sender.user).includes(x.id.user))
     console.log("Non votanti:", unvotes);
+    
     const voteAccumulator = votes.reduce((acc, x) => {
       x.__x_selectedOptionLocalIds.forEach(y => acc[y] = (acc[y] || 0) + 1)
       return acc
@@ -46,7 +53,7 @@ window.addEventListener('message', (e) => {
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.__x_sender.user).__x_name || 
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.__x_sender.user).__x_pushname
     })).map(x=>{
-      let res = sanitizeString(x.name) + "," + x.phone
+      let res = sanitizeString(x.name) + "," + sanitizeString(x.phone)
       for (let i = 0; i < poll.__x__pollOptionsToLinks.size; i++) {
         res += x.votes && x.votes.includes(i) ? ",X": ","
       }
@@ -55,15 +62,16 @@ window.addEventListener('message', (e) => {
     }).join("\n");
 
     // Non votanti
+    csv += "\n";
     csv += unvotes.map(x=>({
       phone: '+'+x.id.user,
       name:
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.id.user).__x_name || 
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.id.user).__x_pushname
-    })).map(x=>`${sanitizeString(x.name)},${x.phone}`).join("\n");
+    })).map(x=>`${sanitizeString(x.name)},${sanitizeString(x.phone)}`).join("\n");
 
     // Totale
-    csv += ",TOTALE,"
+    csv += "\n,TOTALE,"
     let tot = 0
     for (let i = 0; i < poll.__x__pollOptionsToLinks.size; i++) {
       csv += voteAccumulator[i] ? voteAccumulator[i] : 0;
@@ -97,6 +105,7 @@ setInterval(()=>{
   if (bottoni) {
     bottoni.forEach(bw => {
       bw.classList.remove("xchv7qt");
+      bw.classList.add("x1tvq4uy");
       bw.disabled = false;
     });
   }

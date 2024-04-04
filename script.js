@@ -22,6 +22,7 @@ setInterval(()=>{
             if (!cloned) return; // Check if cloned is null
             bw.isExportVoted = true;
             cloned.textContent = "Esporta voti";
+            cloned.setAttribute("title", "Esporta i voti in un file CSV");
             cloned.addEventListener("click", (e) => {
                 console.log("exported");
                 const messageId = e.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.dataset.id;
