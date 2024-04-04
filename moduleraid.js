@@ -1,10 +1,10 @@
 /*
 * moduleRaid v6
- * https://github.com/wwebjs/moduleRaid
+ * https://github.com/BisUmTo/moduleRaid
  *
  * Copyright pixeldesu, pedroslopez, purpshell and other contributors
  * Licensed under the MIT License
- * https://github.com/wwebjs/moduleRaid/blob/master/LICENSE
+ * https://github.com/BisUmTo/moduleRaid/blob/master/LICENSE
  */
 
 const moduleRaid = function () {
@@ -32,13 +32,20 @@ const moduleRaid = function () {
       return;
     }
 
-    (window.webpackChunkbuild || window.webpackChunkwhatsapp_web_client).push([
-      [moduleRaid.mID], {}, function(e) {
-        Object.keys(e.m).forEach(function(mod) {
-          moduleRaid.mObj[mod] = e(mod);
-        })
-      }
-    ]);
+    const initInterval = setInterval(() => {
+      console.log("waiting for webpackChunk to load...")
+      try{
+      (window.webpackChunkbuild || window.webpackChunkwhatsapp_web_client).push([
+        [moduleRaid.mID], {}, function(e) {
+          Object.keys(e.m).forEach(function(mod) {
+            moduleRaid.mObj[mod] = e(mod);
+          })
+        }
+      ]);
+      clearInterval(initInterval);
+      console.log('webpackChunk found, modules loaded')
+    } catch(e) {}
+    }, 1000);
   }
   
   fillModuleArray();
