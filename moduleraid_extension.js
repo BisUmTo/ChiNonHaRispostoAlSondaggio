@@ -25,14 +25,16 @@ window.addEventListener('message', (e) => {
     const poll = Store.Msg.getModelsArray().filter(m=>m.type == "poll_creation").find(m=>e.data.export.includes(m.__x_id.id));
     console.log("Sondaggio:", poll);
 
-    if (!poll.remote || !poll.remote.user) {
-      alert("Attualmente non è possibile esportare i voti dei sondaggi privati");
-      return;
+    const chat_id = poll.__x_id.remote;
+    if (chat_id.server.startsWith("g")) {
+      var group = Store.GroupMetadata.getModelsArray().find(x=>x.__x_id.user==chat_id.user);
+      console.log("Gruppo:", group);
+      var partecipants = group.participants._models;
+    } else {
+      const chat = Store.Chat._models.find(x=>x.__x_id.user==chat_id.user);
+      console.log("Chat:", chat);
+      var partecipants = [{id: poll.__x_from}, {id: poll.__x_to}];
     }
-
-    const group = Store.GroupMetadata.getModelsArray().filter(x=>x.__x_id.user==poll.remote.user)[0];
-    console.log("Gruppo:", group);
-    const partecipants = group.participants._models;
     console.log("Partecipanti:", partecipants);
     const unvotes = partecipants.filter(x=>!votes.map(x=>x.__x_sender.user).includes(x.id.user))
     console.log("Non votanti:", unvotes);
@@ -62,9 +64,9 @@ window.addEventListener('message', (e) => {
     }).join("\n");
 
     // Non votanti
-    csv += "\n";
+    if (unvotes.length > 0) csv += "\n";
     csv += unvotes.map(x=>({
-      phone: '+'+x.id.user,
+      phone: '+' + x.id.user,
       name:
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.id.user).__x_name || 
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.id.user).__x_pushname
@@ -83,11 +85,12 @@ window.addEventListener('message', (e) => {
     // Download
     const a = document.createElement("a");
     a.href = 'data:text/csv; charset=utf-8,' + encodeURIComponent("\uFEFF" + csv)
-    a.download = `voti_${(new Date().toJSON().slice(0,16))}.csv`
+    a.download = `voti_${getFormattedTime()}.csv`
     a.click();
   }
 })
 
+// SANITIZZA STRINGA PER CSV
 function sanitizeString (desc) {
   var itemDesc;
   if (desc) {
@@ -99,6 +102,19 @@ function sanitizeString (desc) {
   return `"${itemDesc}"`;
 }
 
+// DATA CORRENTE
+function getFormattedTime() {
+  var today = new Date();
+  var y = today.getFullYear();
+  var m = `${today.getMonth() + 1}`.padStart(2, '0');
+  var d = `${today.getDate()}`.padStart(2, '0');
+  var h =  today.getHours();
+  var mi = `${today.getMinutes()}`.padStart(2, '0');
+  var s = `${today.getSeconds()}`.padStart(2, '0');
+  return `${y}-${m}-${d}_${h}-${mi}-${s}`;
+}
+
+// ABILITA BOTTONI
 setInterval(()=>{
   if (!pulsanti_abilitati) return;
   const bottoni = document.querySelectorAll(".esporta-voti.xchv7qt") 
