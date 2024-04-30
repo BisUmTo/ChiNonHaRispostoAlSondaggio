@@ -45,7 +45,7 @@ window.addEventListener('message', (e) => {
     }, {});
 
     // Intestazione
-    let csv = sanitizeString(poll.__x_pollName)+",," + poll.__x_pollOptions.map(x=>sanitizeString(x.name)).join(",") + ",Numero voti\n"
+    let csv = sanitizeString(poll.__x_pollName)+";;" + poll.__x_pollOptions.map(x=>sanitizeString(x.name)).join(";") + ";Numero voti\n"
     
     // Voti
     csv += votes.map(x=>({
@@ -55,11 +55,11 @@ window.addEventListener('message', (e) => {
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.__x_sender.user).__x_name || 
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.__x_sender.user).__x_pushname
     })).map(x=>{
-      let res = sanitizeString(x.name) + "," + sanitizeString(x.phone)
+      let res = sanitizeString(x.name) + ";" + sanitizeString(x.phone)
       for (let i = 0; i < poll.__x__pollOptionsToLinks.size; i++) {
-        res += x.votes && x.votes.includes(i) ? ",X": ","
+        res += x.votes && x.votes.includes(i) ? ";X": ";"
       }
-      res += "," + x.votes.length
+      res += ";" + x.votes.length
       return res
     }).join("\n");
 
@@ -70,15 +70,15 @@ window.addEventListener('message', (e) => {
       name:
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.id.user).__x_name || 
         Store.Contact.getModelsArray().find(y=>y.__x_id.user == x.id.user).__x_pushname
-    })).map(x=>`${sanitizeString(x.name)},${sanitizeString(x.phone)}`).join("\n");
+    })).map(x=>`${sanitizeString(x.name)};${sanitizeString(x.phone)}`).join("\n");
 
     // Totale
-    csv += "\n,TOTALE,"
+    csv += "\n;TOTALE;"
     let tot = 0
     for (let i = 0; i < poll.__x__pollOptionsToLinks.size; i++) {
       csv += voteAccumulator[i] ? voteAccumulator[i] : 0;
       tot += voteAccumulator[i] ? voteAccumulator[i] : 0;
-      csv += ",";
+      csv += ";";
     }
     csv += tot + "\n";
 
