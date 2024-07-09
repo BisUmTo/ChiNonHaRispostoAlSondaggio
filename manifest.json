@@ -1,8 +1,8 @@
 {
 
-    "name": "Chi Non Ha Risposto Al Sondaggio WhatsApp",
+    "name": "Chi Non Ha Risposto Al Sondaggio WA",
     "version": "0.3",
-    "description": "Elenca le persone che non hanno risposto al sondaggio WhatsApp",
+    "description": "Elenca le persone che non hanno risposto al sondaggio WA",
     "icons": {
         "16": "icons/16.png",
         "32": "icons/32.png",
